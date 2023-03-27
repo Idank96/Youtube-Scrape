@@ -26,7 +26,6 @@ with_video: A boolean value indicating whether the script should download video 
 To download all male choir audios which include the words "male", "men", "man", or "boy" in the title or description, and which do not include the words "women" or "girl" in the title or description, with the videos included, run the following command:
 
 ```
-Copy code
 search_term = 'male choir'
 must_have_in_title_or_description = ['male', 'men', 'man', 'boy']
 must_not_have_in_title_or_description = ['women', 'girl']
