@@ -1,6 +1,4 @@
 # Youtube-Scrape
-Waves Audio script
-
 This script is used to scrape audio files from YouTube based on a given search term and specific search filters.
 
 # Prerequisites
