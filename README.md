@@ -3,15 +3,15 @@ This script is used to scrape audio files from YouTube based on a given search t
 If you want to create an audio file collection from YouTube videos, this repository is a good and easy choice.
 
 # Prerequisites
-Python 3.7 or higher
-google-api-python-client library
-pytube library
+* Python 3.7 or higher
+* google-api-python-client library
+* pytube library
 
 # Installation
-Clone or download this repository.
-Install the required libraries using pip:
+* Clone or download this repository.
+* Install the required libraries using pip:
 `pip install google-api-python-client pytube`
-Set up the YouTube API key.
+* Set up the YouTube API key.
 
 # Usage
 Update the search_term, must_have_in_title_or_description, must_not_have_in_title_or_description, and with_video variables in the main() function according to your requirements.
