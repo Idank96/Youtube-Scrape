@@ -19,7 +19,7 @@ import os
 
 def get_youtube_urls(database_path, search_term, must_have_in_title_or_description, must_not_have_in_title_or_description, pickle_exists_only_download=False):
     """
-    # To make it work you need to create google (Youtube) API key.
+    To make it work you need to create google (Youtube) API key.
     Returns a list of YouTube urls that match the search term.
     """
 
@@ -31,7 +31,6 @@ def get_youtube_urls(database_path, search_term, must_have_in_title_or_descripti
 
     # First page of 50 videos (still not using it. first use in the while loop)
     youtube = build('youtube', 'v3', developerKey=API_KEY)
-
 
     # if pickle already exists, meaning the script failed yesterday
     # so it load the last urls so that it wont add the same urls to urls dict.
@@ -102,6 +101,15 @@ def get_youtube_urls(database_path, search_term, must_have_in_title_or_descripti
 
 
 def downloaded_from_youtube(database_path, url, with_video=False):
+    """
+    Download audio/video from a YouTube video and save it to the specified database path.
+
+    Parameters:
+    - database_path (Path): The directory where the downloaded audio file will be saved.
+    - url (str): The URL of the YouTube video to download audio from.
+    - with_video (bool, optional): Whether to download both audio and video. If True, the audio will be extracted
+      from the video. If False (default), only the audio will be downloaded.
+    """
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': str(database_path.joinpath('%(title)s.%(ext)s')),
@@ -126,13 +134,11 @@ def downloaded_from_youtube(database_path, url, with_video=False):
 
 
 def upload_file_to_sharepoint(file_path, search_term):
-    '''
+    """
+    *** NOT WORKING YET ***
+    Upload file to s SharePoint server.
     To make it work you need your sharepoint_user and sharepoint_password.
-    TODO. not working yet.
-    :param file_path:
-    :param search_term:
-    :return:
-    '''
+    """
     # SharePoint URL
     url = 'https://wavesaudio.sharepoint.com/teams/Waves - AudioData'
 
@@ -178,6 +184,22 @@ def upload_file_to_sharepoint(file_path, search_term):
 
 
 def scrape_audio(database_path, search_term, must_have_in_title, must_not_have_in_title_or_description, with_video=False):
+    """
+    Scrape audio files from YouTube based on search criteria and store information in a database.
+
+    This function performs the following steps:
+    1. Creates a directory at the specified 'database_path' if it doesn't exist.
+    2. Retrieves YouTube video URLs based on search criteria.
+    3. Creates or updates a 'scanned_files.csv' file to keep track of downloaded files.
+    4. Downloads audio files from YouTube.
+    
+    Parameters:
+    - database_path (pathlib.Path): The path to the directory where audio files and metadata will be stored.
+    - search_term (str): The search term used to find relevant YouTube videos.
+    - must_have_in_title (str): A string that must be present in the video title or description.
+    - must_not_have_in_title_or_description (str): A string that must not be present in the video title or description.
+    - with_video (bool, optional): If True, download video along with audio. Defaults to False.
+    """
     if not database_path.exists():
         os.makedirs(database_path)
     urls = get_youtube_urls(database_path,
@@ -208,77 +230,7 @@ def scrape_audio(database_path, search_term, must_have_in_title, must_not_have_i
           f'url and name were saved in scanned_files.csv file'
           f'Please upload them to SharePoint.'
           f'Delete all the files manually (without delete the scanned_files.csv) !!!!!.')
-
-# # Define a function to find the best threshold values
-# def find_best_thresholds(instrument_files):
-#     # Initialize variables to store the best thresholds
-#     best_low_threshold = 0
-#     best_mid_threshold = 0
-#     best_high_threshold = 0
-#     best_mse = float('inf')
-#
-#     # Iterate through a range of possible threshold values
-#     for low_threshold in range(0, 200):
-#         for mid_threshold in range(0, 200):
-#             for high_threshold in range(0, 200):
-#                 # Initialize a variable to store the mean squared error
-#                 mse = 0
-#
-#                 # Perform spectral analysis on each instrument file
-#                 for file in instrument_files:
-#                     instrument_spectrum = spectral_analysis(file)
-#                     low_error = (instrument_spectrum[0] - low_threshold) ** 2
-#                     mid_error = (instrument_spectrum[1] - mid_threshold) ** 2
-#                     high_error = (instrument_spectrum[2] - high_threshold) ** 2
-#                     mse += low_error + mid_error + high_error
-#
-#                 # Average the mean squared error
-#                 mse /= len(instrument_files)
-#
-#                 # Check if this set of thresholds has a lower mean squared error
-#                 if mse < best_mse:
-#                     best_low_threshold = low_threshold
-#                     best_mid_threshold = mid_threshold
-#                     best_high_threshold = high_threshold
-#                     best_mse = mse
-#
-#     return best_low_threshold, best_mid_threshold, best_high_threshold
-#
-# def process_audio(database_path):
-#     """
-#     1) Trim leading and trailing silence from an audio signal.
-#     2) Delete files that contain band.
-#     3) Trim people talking and remain only bass parts.
-#     """
-#     best_thresholds_2 = find_best_thresholds_2(Path(r'/Volumes/p4client/RND/MainDev/RND/Idanko/AudioScrape/bass_only')) # ran 1 time and get the best thresholds for 3 samples of single acoustic bass.
-#     best_low_threshold, best_mid_threshold, best_high_threshold = best_thresholds_2[0], best_thresholds_2[1], best_thresholds_2[2]
-#     # best_low_threshold, best_mid_threshold, best_high_threshold = 1680.3934075789475, 3132.2453727500047, 3335.117955657623
-#     database_path = Path('/Volumes/p4client/RND/MainDev/RND/Idanko/AudioScrape/Fretless Bass Search cropped_30_seconds')
-#     band_samples, single_instrument, failed_files = [], [], []
-#     for file in os.listdir(database_path):
-#         file = Path(database_path.joinpath(file))
-#         try:
-#             file_spectrum = spectral_analysis(file)
-#         except Exception as e:
-#             failed_files.append(file)
-#             continue
-#         if file_spectrum[0] > best_low_threshold and file_spectrum[1] > best_mid_threshold and file_spectrum[2] > best_high_threshold:
-#             print("This is may be full band sample")
-#             band_samples.append(file)
-#         else:
-#             print('This is an instrument sample')
-#             single_instrument.append(file)
-#
-#     print(band_samples)
-#     print(single_instrument)
-#     print(failed_files)
-
-# def scan_already_downloaded_files(database_path):
-#     youtube_video_names = os.listdir(database_path)
-#     if len(youtube_video_names) > 0:
-#         scanned_files_df = pd.DataFrame(youtube_video_names)
-#         scanned_files_df.to_csv(database_path.joinpath('scanned_files.csv'), index=False)
-
+    
 
 def main():
     '''
@@ -299,7 +251,7 @@ def main():
                  must_not_have_in_title_or_description,
                  with_video=with_video)
 
-    # process_audio(database_path)
+    # process_audio(database_path) # Future feature
 
 
 if __name__ == '__main__':
@@ -499,3 +451,77 @@ must_have_in_title_or_description = ['female', 'lady', 'she', 'woman', 'girl', '
 must_not_have_in_title_or_description = ['']
 with_video = False
 
+
+
+
+
+
+# # Define a function to find the best threshold values
+# def find_best_thresholds(instrument_files):
+#     # Initialize variables to store the best thresholds
+#     best_low_threshold = 0
+#     best_mid_threshold = 0
+#     best_high_threshold = 0
+#     best_mse = float('inf')
+#
+#     # Iterate through a range of possible threshold values
+#     for low_threshold in range(0, 200):
+#         for mid_threshold in range(0, 200):
+#             for high_threshold in range(0, 200):
+#                 # Initialize a variable to store the mean squared error
+#                 mse = 0
+#
+#                 # Perform spectral analysis on each instrument file
+#                 for file in instrument_files:
+#                     instrument_spectrum = spectral_analysis(file)
+#                     low_error = (instrument_spectrum[0] - low_threshold) ** 2
+#                     mid_error = (instrument_spectrum[1] - mid_threshold) ** 2
+#                     high_error = (instrument_spectrum[2] - high_threshold) ** 2
+#                     mse += low_error + mid_error + high_error
+#
+#                 # Average the mean squared error
+#                 mse /= len(instrument_files)
+#
+#                 # Check if this set of thresholds has a lower mean squared error
+#                 if mse < best_mse:
+#                     best_low_threshold = low_threshold
+#                     best_mid_threshold = mid_threshold
+#                     best_high_threshold = high_threshold
+#                     best_mse = mse
+#
+#     return best_low_threshold, best_mid_threshold, best_high_threshold
+#
+# def process_audio(database_path):
+#     """
+#     1) Trim leading and trailing silence from an audio signal.
+#     2) Delete files that contain band.
+#     3) Trim people talking and remain only bass parts.
+#     """
+#     best_thresholds_2 = find_best_thresholds_2(Path(r'/Volumes/p4client/RND/MainDev/RND/Idanko/AudioScrape/bass_only')) # ran 1 time and get the best thresholds for 3 samples of single acoustic bass.
+#     best_low_threshold, best_mid_threshold, best_high_threshold = best_thresholds_2[0], best_thresholds_2[1], best_thresholds_2[2]
+#     # best_low_threshold, best_mid_threshold, best_high_threshold = 1680.3934075789475, 3132.2453727500047, 3335.117955657623
+#     database_path = Path('/Volumes/p4client/RND/MainDev/RND/Idanko/AudioScrape/Fretless Bass Search cropped_30_seconds')
+#     band_samples, single_instrument, failed_files = [], [], []
+#     for file in os.listdir(database_path):
+#         file = Path(database_path.joinpath(file))
+#         try:
+#             file_spectrum = spectral_analysis(file)
+#         except Exception as e:
+#             failed_files.append(file)
+#             continue
+#         if file_spectrum[0] > best_low_threshold and file_spectrum[1] > best_mid_threshold and file_spectrum[2] > best_high_threshold:
+#             print("This is may be full band sample")
+#             band_samples.append(file)
+#         else:
+#             print('This is an instrument sample')
+#             single_instrument.append(file)
+#
+#     print(band_samples)
+#     print(single_instrument)
+#     print(failed_files)
+
+# def scan_already_downloaded_files(database_path):
+#     youtube_video_names = os.listdir(database_path)
+#     if len(youtube_video_names) > 0:
+#         scanned_files_df = pd.DataFrame(youtube_video_names)
+#         scanned_files_df.to_csv(database_path.joinpath('scanned_files.csv'), index=False)
