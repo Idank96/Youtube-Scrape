@@ -233,11 +233,27 @@ def scrape_audio(database_path, search_term, must_have_in_title, must_not_have_i
     
 
 def main():
-    '''
-    must_have_in_title_or_description # at least one -> download
-    must_not_have_in_title_or_description  # at least one -> not download.
-    :return:
-    '''
+    """
+    This function is the entry point for scraping audio files from YouTube based on specific search criteria
+    and processing them (a future feature). It allows you to customize your search criteria and control
+    whether to download videos along with audio.
+
+    Parameters:
+    - search_term (str): The search term used to find relevant YouTube videos.
+    - must_have_in_title_or_description (list of str): A list of keywords that must be present either in the
+      video title or description for the video to be downloaded. At least one keyword from this list must match.
+    - must_not_have_in_title_or_description (list of str): A list of keywords that must not be present either in the
+      video title or description for the video to be downloaded. If any keyword from this list matches, the video
+      will not be downloaded.
+    - with_video (bool, optional): If True, download the video along with the audio. Defaults to True.
+
+    Notes:
+    - The 'search_term' parameter should be a descriptive keyword or phrase to narrow down your search.
+    - 'must_have_in_title_or_description' should contain keywords that help filter relevant videos.
+    - 'must_not_have_in_title_or_description' should contain keywords to exclude unwanted videos.
+    - The 'with_video' parameter controls whether video files are downloaded in addition to audio.
+    """
+    
     search_term = 'male choir'
     must_have_in_title_or_description = ['male', 'men', 'man', 'boy']
     must_not_have_in_title_or_description = ['women', 'girl']
